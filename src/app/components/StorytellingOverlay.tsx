@@ -5,25 +5,29 @@ import { motion, useScroll, useTransform } from "framer-motion";
 export default function StorytellingOverlay() {
   const { scrollYProgress } = useScroll();
 
-  // Section 1: Hero (0% - 15%)
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.1, 0.15], [1, 1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.15], [0, -50]);
+  // Section 1: Hero (Sony text)
+  // Vanishes exactly WHILE the Precision text is appearing (15%-25% gap)
+  // Stays locked at 0 opacity for the rest of the scroll (from 25% to 100%)
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.15, 0.25, 1], [1, 1, 0, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 0]); // Stays centered vertically
+  const heroScale = useTransform(scrollYProgress, [0, 0.15, 0.25, 1], [1, 1, 0.8, 0.8]); // Stays scaled back
 
-  // Section 2: Engineering Reveal (15% - 40%)
-  const engOpacity = useTransform(scrollYProgress, [0.15, 0.25, 0.35, 0.4], [0, 1, 1, 0]);
+  // Section 2: Engineering Reveal (Precision text)
+  // Fades in early (15%-25%), stays visible alongside Sony text, then alone until 40%
+  const engOpacity = useTransform(scrollYProgress, [0.15, 0.25, 0.40, 0.50], [0, 1, 1, 0]);
   const engX = useTransform(scrollYProgress, [0.15, 0.25], [-50, 0]);
 
-  // Section 3: Noise Cancelling (40% - 65%)
-  const ncOpacity = useTransform(scrollYProgress, [0.4, 0.5, 0.6, 0.65], [0, 1, 1, 0]);
-  const ncX = useTransform(scrollYProgress, [0.4, 0.5], [50, 0]);
+  // Section 3: Noise Cancelling
+  const ncOpacity = useTransform(scrollYProgress, [0.40, 0.50, 0.65, 0.75], [0, 1, 1, 0]);
+  const ncX = useTransform(scrollYProgress, [0.40, 0.50], [50, 0]);
 
-  // Section 4: Sound & Upscaling (65% - 85%)
-  const soundOpacity = useTransform(scrollYProgress, [0.65, 0.75, 0.8, 0.85], [0, 1, 1, 0]);
+  // Section 4: Sound & Upscaling
+  const soundOpacity = useTransform(scrollYProgress, [0.65, 0.75, 0.85, 0.90], [0, 1, 1, 0]);
   const soundY = useTransform(scrollYProgress, [0.65, 0.75], [50, 0]);
 
-  // Section 5: Reassembly & CTA (85% - 100%)
-  const ctaOpacity = useTransform(scrollYProgress, [0.85, 0.95, 1], [0, 1, 1]);
-  const ctaY = useTransform(scrollYProgress, [0.85, 0.95], [50, 0]);
+  // Section 5: Reassembly & CTA
+  const ctaOpacity = useTransform(scrollYProgress, [0.90, 0.95, 1], [0, 1, 1]);
+  const ctaY = useTransform(scrollYProgress, [0.90, 0.95], [50, 0]);
 
   return (
     <div className="relative z-10 w-full" style={{ height: "400vh" }}>
@@ -33,9 +37,9 @@ export default function StorytellingOverlay() {
         so they remain in the viewport while scrolling.
       */}
 
-      {/* Hero / Intro */}
+      {/* Hero / Intro (Sony Text) */}
       <motion.div
-        style={{ opacity: heroOpacity, y: heroY }}
+        style={{ opacity: heroOpacity, y: heroY, scale: heroScale }}
         className="fixed inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-6"
       >
         <div className="relative pointer-events-auto">
@@ -54,7 +58,7 @@ export default function StorytellingOverlay() {
         </div>
       </motion.div>
 
-      {/* Engineering Reveal */}
+      {/* Engineering Reveal (Precision Text) */}
       <motion.div
         style={{ opacity: engOpacity, x: engX }}
         className="fixed inset-y-0 left-0 w-full md:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 pointer-events-none"
@@ -131,11 +135,11 @@ export default function StorytellingOverlay() {
           </p>
           
           <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-6">
-            <button className="group relative overflow-hidden rounded-full bg-white px-8 py-4 text-black font-semibold tracking-wide transition-transform duration-300 hover:scale-105">
+            <button className="group relative overflow-hidden rounded-full bg-white px-8 py-4 text-black font-semibold tracking-wide transition-transform duration-300 hover:scale-105 pointer-events-auto">
               <span className="relative z-10">Experience WH-1000XM6</span>
               <div className="absolute inset-0 z-0 bg-gradient-to-r from-gray-200 to-gray-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
-            <button className="text-white/80 font-medium hover:text-white transition-colors duration-300 flex items-center gap-2">
+            <button className="text-white/80 font-medium hover:text-white transition-colors duration-300 flex items-center gap-2 pointer-events-auto">
               See full specs
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

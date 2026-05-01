@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sony WH-1000XM6 - Vanishing Hero</title>
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.9);
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --accent-glow: rgba(0, 80, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Helvetica Neue", sans-serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Dark overlay / Background image */
+        .bg-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-image: radial-gradient(circle at center, var(--accent-glow) 0%, transparent 60%),
+                              url('./images/sequence/ezgif-frame-001.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 1;
+            background-color: var(--bg-color);
+        }
+
+        /* 
+          Hero Container with extra height to allow scrolling 
+          while the hero section stays sticky inside it.
+        */
+        .hero-container {
+            position: relative;
+            height: 200vh;
+            z-index: 10;
+        }
+
+        .hero-section {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 24px;
+        }
+
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            /* Will transition smoothly via JS */
+            will-change: opacity, transform;
+        }
+
+        .heading {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            background: linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0.7) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            color: var(--text-secondary);
+        }
+
+        .paragraph {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            font-weight: 400;
+            color: var(--text-muted);
+            max-width: 600px;
+            line-height: 1.5;
+            margin-top: 8px;
+        }
+
+        /* Next Section */
+        .next-section {
+            position: relative;
+            z-index: 20;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(to bottom, transparent 0%, rgba(5,5,5,0.8) 50%, var(--bg-color) 100%);
+        }
+
+        .next-content h2 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        /* Extra scroll space to test scrolling past the section */
+        .spacer {
+            height: 100vh;
+            background-color: var(--bg-color);
+            position: relative;
+            z-index: 20;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Layer (Remains visible) -->
+    <div class="bg-layer"></div>
+
+    <!-- Sticky Hero Container -->
+    <div class="hero-container">
+        <div class="hero-section">
+            <div class="hero-content" id="heroContent">
+                <h1 class="heading">Sony WH-1000XM6</h1>
+                <h2 class="subtitle">Silence, perfected.</h2>
+                <p class="paragraph">Flagship wireless noise cancelling, re-engineered for a world that never stops.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- The trigger section -->
+    <div class="next-section" id="precisionSection">
+        <div class="next-content">
+            <h2>Precision-engineered <br> for silence.</h2>
+        </div>
+    </div>
+
+    <!-- Extra scroll space to ensure the text doesn't reappear -->
+    <div class="spacer"></div>
+    <div class="spacer"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const heroContent = document.getElementById("heroContent");
+            const precisionSection = document.getElementById("precisionSection");
+            
+            // We store the lowest opacity reached to create the "one-way fade" effect
+            let lowestOpacity = 1;
+
+            const handleScroll = () => {
+                const rect = precisionSection.getBoundingClientRect();
+                const vh = window.innerHeight;
+
+                // When the Precision section enters the viewport (rect.top <= vh)
+                // We want the text to fade out smoothly over the next 50% of the viewport scroll
+                const fadeDistance = vh * 0.5;
+
+                if (rect.top <= vh && rect.top > vh - fadeDistance) {
+                    // Calculate how far into the fade distance we have scrolled
+                    const scrolledIntoFade = vh - rect.top;
+                    
+                    // Progress from 0 (just entered) to 1 (scrolled fadeDistance)
+                    const progress = scrolledIntoFade / fadeDistance;
+                    const targetOpacity = 1 - progress;
+
+                    // Only update if it makes the opacity LOWER (one-way fade)
+                    if (targetOpacity < lowestOpacity) {
+                        lowestOpacity = targetOpacity;
+                        
+                        heroContent.style.opacity = lowestOpacity;
+                        // Optional premium cinematic scale/move effect
+                        heroContent.style.transform = `translateY(${progress * -50}px) scale(${1 - (progress * 0.05)})`;
+                    }
+                } else if (rect.top <= vh - fadeDistance) {
+                    // Once we've fully passed the fade distance, lock it at 0
+                    lowestOpacity = 0;
+                    heroContent.style.opacity = 0;
+                    heroContent.style.transform = `translateY(-50px) scale(0.95)`;
+                }
+
+                // If opacity reaches 0, permanently disable pointer events
+                if (lowestOpacity <= 0) {
+                    heroContent.style.pointerEvents = 'none';
+                }
+            };
+
+            // Optimize scroll listener
+            let ticking = false;
+            window.addEventListener('scroll', () => {
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        handleScroll();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+
+            // Trigger once on load in case the user refreshes midway down the page
+            handleScroll();
+        });
+    </script>
+</body>
+</html>
